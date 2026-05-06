@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>搶救貓咪大作戰</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap');
+
+        body {
+            font-family: 'Noto Sans TC', sans-serif;
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+            background-color: #ffffff;
+        }
+
+        /* --- 1. 背景圖片 CSS 定義區 (依照要求格式) --- */
+        #home-view {
+            background-image:
+                linear-gradient(180deg, #f3d7d7cc 0%, #ffffffcc 100%),
+                url("./game01.jpg");
+            background-size: cover;
+            background-position: center;
+        }
+
+        #credits-view {
+            background-image:
+                linear-gradient(180deg, #fff9e3cc 0%, #ffffffcc 100%),
+                url("./game02.jpg");
+            background-size: cover;
+            background-position: center;
+        }
+
+
+        /* 結算頁漸層背景 */
+        #result-view {
+            background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%);
+        }
+
+        .map-container {
+            background-image: url("./pics/map.png");
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+
+        /* 問答頁面的地點背景類別 */
+        .bg-school {
+            background-image: url("./pics/school.png");
+        }
+
+        .bg-park {
+            background-image: url("./pics/park.png");
+        }
+
+        .bg-station {
+            background-image: url("./pics/train.png");
+        }
+
+        .bg-cafe {
+            background-image: url("./pics/cafe.png");
+        }
+
+        #quiz-view {
+            background-size: cover;
+            background-position: center;
+        }
+
+        /* --- 2. Loading 頁面樣式 (完全保留原本拼圖貓樣式) --- */
+        .gradient-loading {
+            background: linear-gradient(135deg, #fce4ec 0%, #f8bbd0 100%);
+        }
+
+        #box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+            padding-right: 60px;
+            /* 原本的補償對齊 */
+        }
+
+        .cat * {
+            text-align: center;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cat,
+        .ears,
+        .eyes,
+        .muzzle,
+        .body,
+        .paw,
+        .tail,
+        .tail-segment {
+            position: relative;
+        }
+
+        .head,
+        .body,
+        .paw,
+        .tail-segment {
+            background-color: #000000;
+        }
+
+        .left {
+            float: left;
+        }
+
+        .right {
+            float: right;
+        }
+
+        .cat {
+            margin-top: 50px;
+            transform: scale(0.75);
+            animation: purr 5s infinite cubic-bezier(0, .75, 1, .25);
+        }
+
+        .head {
+            width: 100px;
+            height: 90px;
+            border-radius: 50%;
+            z-index: 100;
+            animation: head-bob 5s infinite ease-in-out;
+        }
+
+        .ears {
+            top: -20px;
+            z-index: -100;
+        }
+
+        .ear {
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-bottom: 50px solid #000000;
+        }
+
+        .ear.left {
+            transform: rotate(-20deg) translateX(-10px);
+        }
+
+        .ear.right {
+            transform: rotate(20deg) translateX(10px);
+        }
+
+        .eyes {
+            top: -18px;
+            width: 60%;
+        }
+
+        .eye {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background-color: #FFD700;
+            animation: eye-blink 5s infinite;
+        }
+
+        .muzzle {
+            top: 50px;
+        }
+
+        .nose {
+            width: 0;
+            height: 0;
+            border-left: 10px solid transparent;
+            border-right: 10px solid transparent;
+            border-top: 10px solid #666666;
+        }
+
+        .body {
+            width: 200px;
+            height: 120px;
+            border-top-left-radius: 200px;
+            border-top-right-radius: 200px;
+            top: -75px;
+            left: 90px;
+            z-index: -10;
+        }
+
+        .paw {
+            height: 30px;
+            width: 50px;
+            border-radius: 25px;
+            left: -100px;
+            top: 90px;
+        }
+
+        .tail {
+            left: 180px;
+            top: -100px;
+            transform: rotate(90deg);
+        }
+
+        .tail-segment {
+            height: 20px;
+            width: 30px;
+            border-radius: 25px;
+            top: 0px;
+            left: 10px;
+            animation: tail-swish 5s infinite cubic-bezier(.8, 0, .2, 1);
+        }
+
+        @keyframes tail-swish {
+
+            0%,
+            100% {
+                transform: rotate(12deg);
+            }
+
+            40% {
+                transform: rotate(-5deg);
+            }
+
+            50% {
+                transform: rotate(5deg);
+            }
+
+            60% {
+                transform: rotate(-5deg);
+            }
+        }
+
+        @keyframes head-bob {
+
+            0%,
+            10%,
+            90%,
+            100% {
+                transform: translateX(-15px) translateY(45px);
+            }
+
+            30%,
+            75% {
+                transform: translateX(0) translateY(0);
+            }
+        }
+
+        @keyframes eye-blink {
+
+            0%,
+            10%,
+            100% {
+                transform: scaleY(0);
+            }
+
+            15%,
+            48%,
+            52%,
+            90% {
+                transform: scaleY(1);
+            }
+
+            50%,
+            95% {
+                transform: scaleY(0);
+            }
+        }
+
+        @keyframes purr {
+            0% {
+                transform: scale(0.75);
+            }
+
+            50% {
+                transform: scale(0.76);
+            }
+
+            100% {
+                transform: scale(0.75);
+            }
+        }
+
+
+
+        .loading-text::after {
+            content: '';
+            animation: dots 1.5s steps(4, end) infinite;
+        }
+
+        @keyframes dots {
+
+            0%,
+            20% {
+                content: '';
+            }
+
+            40% {
+                content: '.';
+            }
+
+            60% {
+                content: '..';
+            }
+
+            80% {
+                content: '...';
+            }
+        }
+
+        /* --- 3. 介面與地圖標籤樣式 --- */
+        .view-transition {
+            transition: opacity 0.6s ease-in-out, transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .hidden-view {
+            display: none !important;
+            opacity: 0;
+        }
+
+        .btn-ui {
+            background-color: #ffffff;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            border-radius: 14px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+            color: #333;
+            text-align: center;
+        }
+
+        .btn-ui:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.06);
+            background-color: #fcfcfc;
+        }
+
+        .loc-label {
+            position: absolute;
+            background-color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            border: 1px solid #ddd;
+            font-weight: bold;
+            color: #000000;
+            font-size: 1.2rem;
+            transform: translate(-50%, -50%);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .loc-label:hover {
+            transform: translate(-50%, -50%) !important;
+            /* 確保滑鼠碰到時不移動 */
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        }
+
+        .loc-label.completed {
+            opacity: 0.4;
+            filter: grayscale(1);
+            pointer-events: none;
+        }
+
+        .dialog-box {
+            background-color: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(8px);
+            border-radius: 24px;
+            padding: 2.5rem;
+            width: 70%;
+            max-width: 800px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            border: 1px solid white;
+        }
+
+        /* 結算頁專屬藍色漸層背景 */
+        #result-view {
+            background: linear-gradient(180deg, #e0f2fe 0%, #ffffff 100%);
+        }
+
+
+
+        /* 貓咪分數框框容器 */
+        .cat-frame-container {
+            position: relative;
+            width: 360px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 1rem 0;
+        }
+
+        /* 貓咪剪影框框 SVG 樣式 */
+        .cat-frame-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            fill: #ffffff;
+            /* 框框內部填充白色 */
+            filter: drop-shadow(0 15px 30px rgba(0, 0, 0, 0.05));
+        }
+
+        /* 分數標籤區域 */
+        .score-inner {
+            position: relative;
+            z-index: 10;
+            text-align: center;
+            margin-top: 35px;
+            /* 根據貓頭形狀稍微下移 */
+        }
+
+        /* 中文「分數」標題樣式 */
+        .score-label-cn {
+            font-weight: 800;
+            letter-spacing: 0.3em;
+            color: #94a3b8;
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- 0. Loading 頁面 (保留拼圖貓咪結構) -->
+    <div id="loading-view"
+        class="fixed inset-0 z-[100] flex flex-col items-center justify-center gradient-loading view-transition">
+        <div id="box">
+            <div class="cat">
+                <div class="head">
+                    <div class="ears">
+                        <div class="ear left"></div>
+                        <div class="ear right"></div>
+                    </div>
+                    <div class="eyes">
+                        <div class="eye left"></div>
+                        <div class="eye right"></div>
+                    </div>
+                    <div class="muzzle">
+                        <div class="nose"></div>
+                    </div>
+                </div>
+                <div class="body">
+                    <div class="paw"></div>
+                </div>
+                <div class="tail">
+                    <!-- 14 層尾巴段落 -->
+                    <div class="tail-segment">
+                        <div class="tail-segment">
+                            <div class="tail-segment">
+                                <div class="tail-segment">
+                                    <div class="tail-segment">
+                                        <div class="tail-segment">
+                                            <div class="tail-segment">
+                                                <div class="tail-segment">
+                                                    <div class="tail-segment">
+                                                        <div class="tail-segment">
+                                                            <div class="tail-segment">
+                                                                <div class="tail-segment">
+                                                                    <div class="tail-segment">
+                                                                        <div class="tail-segment"></div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="loading-text text-2xl font-bold text-gray-700 tracking-widest mt-8">Loading</div>
+    </div>
+
+    <!-- Logo (固定左上角) -->
+    <div id="logo" class="fixed top-10 left-10 z-50">
+        <img src="./pics/logo.png" alt="Logo" class="w-10 h-auto">
+    </div>
+
+    <!-- 1. 首頁 -->
+    <div id="home-view"
+        class="h-screen w-full flex flex-col items-center justify-center view-transition hidden-view opacity-0 scale-95">
+        <h1 class="text-5xl font-bold text-gray-800 mb-16 tracking-[0.2em]">搶救貓咪大作戰</h1>
+        <div class="flex flex-col gap-5 w-72">
+            <button onclick="switchView('map-view')" class="btn-ui py-4 text-lg font-medium">開始遊戲</button>
+            <button onclick="switchView('credits-view')" class="btn-ui py-4 text-lg font-medium">小組成員介紹</button>
+        </div>
+    </div>
+
+    <!-- 2. 小組成員介紹頁 -->
+    <div id="credits-view"
+        class="h-screen w-full flex flex-col items-center justify-center view-transition hidden-view opacity-0 scale-95">
+        <h2 class="text-4xl font-bold text-gray-800 mb-10 tracking-wide">小組成員介紹</h2>
+        <div class="member-list text-center mb-12 bg-white/40 p-8 rounded-3xl backdrop-blur-sm">
+            <p>黃翊：美術</p>
+            <p>林奕安：美術</p>
+            <p>張庭毓：故事題目構想</p>
+            <p>徐曼玲：程式設計</p>
+            <p>鄧鈺臻：程式設計</p>
+        </div>
+        <button onclick="switchView('home-view')"
+            class="btn-ui py-3 px-16 text-md font-medium min-w-[220px]">返回上一頁</button>
+    </div>
+
+    <!-- 3. 地圖選擇頁 -->
+    <div id="map-view"
+        class="h-screen w-full flex flex-col items-center justify-center bg-sky-50 view-transition hidden-view opacity-0 scale-95">
+        <div class="w-full h-full max-w-6xl max-h-[80%] map-container" id="map-bg"></div>
+        <div class="mt-8">
+            <button onclick="switchView('home-view')"
+                class="text-gray-600 bg-white/80 px-6 py-2 rounded-full font-medium hover:bg-white transition-all shadow-sm">返回首頁</button>
+        </div>
+    </div>
+
+    <!-- 4. 對話問答頁 -->
+    <div id="quiz-view"
+        class="h-screen w-full flex flex-col items-center justify-center view-transition hidden-view opacity-0 scale-95 bg-zinc-100">
+        <div class="dialog-box flex flex-col items-center">
+            <div class="flex justify-around w-full mb-10">
+                <img src="./pics/girl.png" alt="Girl" class="w-28 h-auto drop-shadow-md">
+                <img src="./pics/cat.png" alt="Cat" class="w-36 h-auto drop-shadow-md">
+            </div>
+            <div id="quiz-content" class="w-full text-center">
+                <p id="scene-desc" class="text-xl text-gray-700 mb-8 font-medium leading-relaxed"></p>
+                <div id="options-container" class="flex flex-wrap justify-center gap-5 mb-4"></div>
+                <div id="feedback-area" class="hidden">
+                    <p id="explanation-text" class="text-lg font-bold text-gray-800 mb-10 border-t pt-8"></p>
+                    <button onclick="finishLocation()"
+                        class="bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-16 rounded-lg border border-black shadow-md transition-all text-xl">下一步</button>
+                </div>
+            </div>
+            <div class="mt-12 flex gap-12 text-blue-600 font-bold">
+                <button onclick="switchView('map-view')" class="hover:underline">地圖</button>
+                <button onclick="resetGame()" class="hover:underline">重新開始</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- 5. 結算頁 -->
+    <div id="result-view"
+        class="h-screen w-full flex flex-col items-center justify-center view-transition hidden-view opacity-0 scale-95">
+        <div class="dialog-box flex flex-col items-center">
+            <!-- 結算標題 -->
+            <h3 class="text-2xl font-bold text-slate-400 mb-2 tracking-[0.4em] uppercase">救援任務完成</h3>
+
+            <!-- 貓咪形狀分數框框 -->
+            <div class="cat-frame-container">
+                <!-- 貓頭剪影 SVG 框 -->
+                <svg class="cat-frame-svg" viewBox="0 0 100 100">
+                    <path
+                        d="M15,35 L28,8 L42,22 Q50,18 58,22 L72,8 L85,35 Q94,48 88,72 Q82,94 50,94 Q18,94 12,72 Q6,48 15,35 Z" />
+                </svg>
+
+                <div class="score-inner">
+                    <div class="score-label-cn">分數</div>
+                    <div class="flex items-baseline justify-center">
+                        <!-- 動態跳動的分數數字 -->
+                        <div id="score-display" class="text-8xl font-black text-blue-600 drop-shadow-sm">0</div>
+                        <div class="text-blue-500 font-bold text-2xl ml-2">分</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 評估文字描述 -->
+            <p id="evaluation-text"
+                class="text-xl font-medium text-slate-500 mb-12 text-center max-w-sm leading-relaxed"></p>
+
+            <!-- 與首頁風格一致的重新挑戰按鈕 (使用 btn-ui 樣式) -->
+            <button onclick="resetGame()" class="btn-ui py-4 px-16 text-lg font-bold min-w-[280px]">
+                重新挑戰
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const GAME_DATA = {
+            locations: [
+                { id: 'school', name: '學校', x: '25.3%', y: '39%' },
+                { id: 'park', name: '公園', x: '67%', y: '42%' },
+                { id: 'station', name: '火車站', x: '29.5%', y: '70%' },
+                { id: 'cafe', name: '咖啡廳', x: '59%', y: '83%' }
+            ],
+            questions: {
+                station: {
+                    scene: "請問貓咪哈氣象徵著什麼?",
+                    options: ["威嚇", "吸引注意", "興奮", "舒適"],
+                    correct: 0,
+                    explanation: "貓咪哈氣並且露出獠牙，就表示貓咪正在戒備你，隨時可能進入攻擊狀態，需要特別注意唷"
+                },
+                park: {
+                    scene: "貓咪體溫低於幾度很可能需要去獸醫院檢查?",
+                    options: ["35", "36.7", "37.7", "38.5"],
+                    correct: 2,
+                    explanation: "貓咪的體溫比人高，平時要留意是否低於37.7度，這可能是牠生病的徵兆。"
+                },
+                school: {
+                    scene: "以下哪種水果貓咪不能吃?",
+                    options: ["葡萄", "草莓", "番茄", "西瓜"],
+                    correct: 0,
+                    explanation: "葡萄裡面成分會導致貓咪中毒以及引發急性腎衰竭。草莓、去籽西瓜、熟番茄(去蒂)則可適量食用。"
+                },
+                cafe: {
+                    scene: "什麼時候要帶母貓去絕育？",
+                    options: ["5個月", "6個月", "7個月", "8個月"],
+                    correct: 1,
+                    explanation: "母貓一般滿六個月，體重滿2公斤即可結紮。"
+                }
+            }
+        };
+
+        let currentLocId = null;
+        let score = 0;
+        let completedLocs = {};
+
+        function switchView(targetId) {
+            const allViews = ['loading-view', 'home-view', 'credits-view', 'map-view', 'quiz-view', 'result-view'];
+
+            allViews.forEach(id => {
+                const view = document.getElementById(id);
+                if (view && !view.classList.contains('hidden-view')) {
+                    view.style.opacity = '0';
+                    view.style.transform = (id === 'loading-view') ? 'scale(1.1)' : 'scale(0.98)';
+                    setTimeout(() => view.classList.add('hidden-view'), 600);
+                }
+            });
+
+            setTimeout(() => {
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.classList.remove('hidden-view');
+                    target.offsetHeight;
+                    target.style.opacity = '1';
+                    target.style.transform = 'scale(1)';
+
+                    // ⭐⭐ 加這段 ⭐⭐
+                    const logo = document.getElementById('logo');
+                    if (['home-view', 'credits-view'].includes(targetId)) {
+                        logo.style.display = 'block';
+                    } else {
+                        logo.style.display = 'none';
+                    }
+
+                    if (targetId === 'map-view') renderMap();
+                }
+            }, 650);
+        }
+
+        function renderMap() {
+            const mapBg = document.getElementById('map-bg');
+            mapBg.innerHTML = '';
+            GAME_DATA.locations.forEach(loc => {
+                const btn = document.createElement('button');
+                btn.className = `loc-label ${completedLocs[loc.id] ? 'completed' : ''}`;
+                btn.style.left = loc.x;
+                btn.style.top = loc.y;
+                btn.innerText = loc.name;
+                btn.onclick = () => startQuiz(loc.id);
+                mapBg.appendChild(btn);
+            });
+        }
+
+        function startQuiz(id) {
+            currentLocId = id;
+            const q = GAME_DATA.questions[id];
+
+            // 透過切換 CSS Class 來更換背景圖
+            const quizView = document.getElementById('quiz-view');
+            // 清除之前的背景類別並加入新的
+            quizView.classList.remove('bg-school', 'bg-park', 'bg-station', 'bg-cafe');
+            quizView.classList.add('bg-' + id);
+
+            document.getElementById('scene-desc').innerText = q.scene;
+            document.getElementById('feedback-area').classList.add('hidden');
+            const optContainer = document.getElementById('options-container');
+            optContainer.innerHTML = '';
+            optContainer.classList.remove('hidden');
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = "btn-ui py-2.5 px-10 font-bold min-w-[140px] text-lg";
+                btn.innerText = opt;
+                btn.onclick = () => handleAnswer(idx);
+                optContainer.appendChild(btn);
+            });
+            switchView('quiz-view');
+        }
+
+        function handleAnswer(idx) {
+            const q = GAME_DATA.questions[currentLocId];
+            if (idx === q.correct) score++;
+            document.getElementById('options-container').classList.add('hidden');
+            document.getElementById('feedback-area').classList.remove('hidden');
+            document.getElementById('explanation-text').innerText = q.explanation;
+        }
+
+        function finishLocation() {
+            completedLocs[currentLocId] = true;
+            if (Object.keys(completedLocs).length === GAME_DATA.locations.length) {
+                showResult();
+            } else {
+                switchView('map-view');
+            }
+        }
+
+        function showResult() {
+            const finalScore = score * 25;
+            const scoreDisplay = document.getElementById('score-display');
+            const evaluationText = document.getElementById('evaluation-text');
+
+            // 切換至結算頁面
+            switchView('result-view');
+
+            // 重設初始值
+            scoreDisplay.innerText = '0';
+            evaluationText.innerText = '';
+
+            // 分數跑動動畫邏輯
+            let currentScore = 0;
+            const duration = 1500; // 動畫總長度 1.5 秒
+            const interval = 30;
+            const totalSteps = duration / interval;
+            const increment = finalScore / totalSteps;
+
+            const counter = setInterval(() => {
+                currentScore += increment;
+                if (currentScore >= finalScore) {
+                    currentScore = finalScore;
+                    clearInterval(counter);
+                    // 動畫結束後顯示評價文字
+                    evaluationText.innerText = finalScore >= 75 ? "太棒了！你是養貓知識達人！" : "再加油！多了解貓咪能相處更愉快喔！";
+                }
+                scoreDisplay.innerText = Math.floor(currentScore);
+            }, interval);
+        }
+
+        function resetGame() {
+            score = 0;
+            completedLocs = {};
+            switchView('home-view');
+        }
+
+        window.onload = () => {
+            setTimeout(() => {
+                switchView('home-view');
+            }, 3500);
+        };
+    </script>
+</body>
+
+</html>
