@@ -622,7 +622,7 @@
             const finalScore = score * 25;
             switchView('result-view');
             
-            // 結算畫面一出現時，便先撥放一聲「橫笛/慶祝鏘」（從 0 秒開始播），讓畫面轉場不留白
+            // 結算畫面一出現時，便先（從 0 秒開始播），讓畫面轉場不留白
             playSound(resultSound, 0);
             
             const display = document.getElementById('score-display');
